@@ -1,10 +1,30 @@
-export default async function handler(req, res) {
-  // Simula tempo de processamento da IA
-  await new Promise((resolve) => setTimeout(resolve, 2000));
+import OpenAI from "openai";
 
-  res.status(200).json({
-    success: true,
-    imageUrl:
-      "https://images.unsplash.com/photo-1520975916090-3105956dac38",
-  });
+const openai = new OpenAI({
+  apiKey: process.env.OPENAI_API_KEY,
+});
+
+export default async function handler(req, res) {
+  try {
+    const prompt = "Uma roupa estilosa para teste"; // Aqui depois podemos usar o prompt dinâmico
+
+    const result = await openai.images.generate({
+      model: "gpt-image-1",
+      prompt,
+      size: "512x512"
+    });
+
+    const imageUrl = result.data[0].url;
+
+    res.status(200).json({
+      success: true,
+      imageUrl,
+    });
+  } catch (error) {
+    console.error(error);
+    res.status(500).json({
+      success: false,
+      error: error.message || "Erro ao gerar imagem",
+    });
+  }
 }
